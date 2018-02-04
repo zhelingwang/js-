@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Js感应鼠标移入移出</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+	
+	<div class="wrap">
+		<div class="inner-img">
+			<div class="desc">
+				<p>2018</p>
+				新春快乐
+				狗年吉祥
+			</div> 
+		</div>
+		<div class="inner-img">
+			<div class="desc">
+				<p>2018</p>
+				合家欢乐
+			</div>
+		</div>
+		<div class="inner-img">
+			<div class="desc">
+				<p>2018</p>
+				百福迎新
+			</div>
+		</div>
+		<div class="inner-img last-block">
+			<div class="desc">
+				<p>2018</p>
+				恭喜发财
+			</div>
+		</div>
+
+		<div class="inner-img">
+			<div class="desc">
+				<p>2018</p>
+				新春快乐
+				狗年吉祥
+			</div> 
+		</div>
+		<div class="inner-img">
+			<div class="desc">
+				<p>2018</p>
+				合家欢乐
+			</div>
+		</div>
+		<div class="inner-img">
+			<div class="desc">
+				<p>2018</p>
+				百福迎新
+			</div>
+		</div>
+		<div class="inner-img last-block">
+			<div class="desc">
+				<p>2018</p>
+				恭喜发财
+			</div>
+		</div>
+
+		<div class="clear"></div>
+	</div>
+
+</body>
+<script src="./js/jquery-3.3.1.min.js"></script>
+<script>
+
+	$(function(){
+		$(".wrap .inner-img").each(function(index){
+			var number = index%4;
+			$(this).css("background-image","url(./images/"+"0"+(number+1)+".png"+")");
+		});
+	});
+
+	//遮盖层的显示与隐藏
+	$(".inner-img").mouseenter(function(event){
+
+		//获取当前元素四边中心点坐标
+		// var left = $(this).offset().left;
+		// var top = $(this).offset().top;
+		var width = $(this)[0].clientWidth;
+		var height = $(this)[0].clientHeight;
+
+		var topPointer = {
+		 		x:Math.round(width/2),
+		 		y:0
+		 	},
+		 	rightPointer = {
+		 		x:Math.round(width),
+		 		y:Math.round(height/2)
+		 	},
+		 	bottomPointer = {
+		 		x:Math.round(width/2),
+		 		y:Math.round(height)
+		 	},
+		 	leftPointer = {
+		 		x:0,
+		 		y:Math.round(height/2)
+		 	};
+
+		var borderPointers = [topPointer,rightPointer,bottomPointer,leftPointer];
+
+		//获取鼠标进入当前元素的坐标
+		var currentPointer = {
+			x:event.offsetX,
+			y:event.offsetY
+		};
+
+		console.log("Direction: "+toDirection(width,height,currentPointer));	
+		
+		//重定位遮罩层
+		var pos = locateTopLayer(toDirection(width,height,currentPointer),width,height);
+
+		// $(selector).animate(styles,speed,easing,callback)
+		$(this).find(".desc").animate({
+			top:pos.top+"px",
+			left:pos.left+"px"
+		},1,"linear",function(){
+			$(this).animate({
+				top:0,left:0
+			},120,"linear");
+		});		
+
+	});
+
+	$(".inner-img").mouseleave(function(){
+		var left = $(this)[0].clientWidth;
+		var top = $(this)[0].clientHeight;
+
+		var currentPointer = {
+			x:event.offsetX,
+			y:event.offsetY
+		};
+
+		var pos = locateTopLayer(toDirection(left,top,currentPointer),left,top);
+
+		console.log("leave: "+toDirection(left,top,currentPointer));	
+
+		$(this).find(".desc").animate({
+			top:pos.top,
+			left:pos.left
+		},120,"linear");
+
+	});
+
+	//计算最小值，确定方向，上右下左分别时0,1,2,3
+	function toDirection(width,height,currentPointer){
+		var minIndex = 0,
+			halfWidth = Math.round(width/2),
+			halfHeight = Math.round(height/2);
+		var x = currentPointer.x,
+			y = currentPointer.y;
+		//将图片划分为四个区块，左上角区块
+		if(x <= halfWidth && y <= halfHeight){
+			return x > y ?  0 : 3;
+		 }else if(x >= halfWidth && y <= halfHeight){
+		 	return (width - x) > y ?  0 : 1;
+		 }else if(x >= halfWidth && y >= halfHeight){
+		 	return (width - x) > (height - y) ? 2 : 1;	
+		}else if(x <= halfWidth && y >= halfHeight){
+			return x > (height - y) ? 2 : 3;
+		}else{
+			console.log("something error......");
+			// return 999;
+		}
+	}
+
+	//定位遮罩层函数
+	function locateTopLayer(directionIndex,width,height){
+		var position = {left:width,top:height};
+		if(directionIndex === 0){
+			position.left = 0;
+			position.top = -height;
+		}else if(directionIndex === 1){
+			position.top = 0;
+		}else if(directionIndex === 2){
+			position.left = 0;
+		}else if(directionIndex === 3){
+			position.top = 0;
+			position.left = -width;
+		}else{
+			console.log("获取方向索引有误");
+		}
+		return position;
+	}
+
+
+</script>
+</html>
